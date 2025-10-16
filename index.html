@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainable Product Value Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <h1 class="main-title">
+                <img src="Icons/eco-tag_6556784.png" alt="Eco Tag" class="eco-icon">
+                The Price is Right
+            </h1>
+            <p class="subtitle">Assess the true value of your sustainable products</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Product Assessment Form -->
+            <form class="assessment-form" id="product-assessment-form">
+                <h2>Product Information</h2>
+                
+                <!-- Basic Product Details -->
+                <div class="form-group">
+                    <label for="product-name">Product Name *</label>
+                    <input type="text" id="product-name" name="product-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-description">Product Description *</label>
+                    <textarea id="product-description" name="product-description" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-docs">Product Documentation</label>
+                    <input type="file" id="product-docs" name="product-docs" accept=".pdf,.doc,.docx,.txt" multiple>
+                    <small>Upload relevant product documentation (PDF, DOC, TXT)</small>
+                </div>
+
+                <!-- Optional NBA Section -->
+                <div class="optional-section">
+                    <h3>Next Best Alternatives (Optional)</h3>
+                    <p class="section-description">Help us understand your competitive landscape</p>
+                    
+                    <div class="form-group">
+                        <label for="nba-products">Known Alternative Products</label>
+                        <textarea id="nba-products" name="nba-products" rows="3" placeholder="List any alternative products you're aware of..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional-info">Additional Information</label>
+                        <textarea id="additional-info" name="additional-info" rows="3" placeholder="Any other relevant information about your product or market..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Assess Product Value</button>
+                </div>
+            </form>
+
+            <!-- Results Section (Placeholder for future functionality) -->
+            <section class="results-section" id="results" style="display: none;">
+                <h2>Value Assessment Results</h2>
+                <div class="results-content">
+                    <p>Results will appear here after assessment...</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Sustainable Product Value Assessment</p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="config.js"></script>
+    <script src="api-service.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
