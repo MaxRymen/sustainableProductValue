@@ -57,6 +57,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Calling OpenAI API for assessment...');
             const results = await openAIService.assessProduct(productData);
             console.log('AI assessment completed:', results);
+            
+            // Store results globally for chart access
+            window.currentAssessmentResults = results;
+            
             displayResults(results);
         } catch (error) {
             console.error('Assessment failed:', error);
@@ -67,8 +71,121 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show loading state
     function showLoading() {
         console.log('Showing loading state...');
-        submitBtn.innerHTML = '<span class="loading-spinner"></span> Assessing Value...';
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Starting Analysis...';
         submitBtn.disabled = true;
+        
+        // Create progress indicator
+        const progressContainer = document.createElement('div');
+        progressContainer.id = 'progress-container';
+        progressContainer.innerHTML = `
+            <div class="progress-indicator">
+                <h4>📊 Assessment Progress</h4>
+                    <div class="progress-steps">
+                        <div class="progress-step" id="step-nba">
+                            <span class="step-icon">🔍</span>
+                            <span class="step-text">NBA Analysis</span>
+                            <span class="step-status spinning-hourglass">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-value">
+                            <span class="step-icon">💰</span>
+                            <span class="step-text">Value Differentiators</span>
+                            <span class="step-status spinning-hourglass">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-willingness">
+                            <span class="step-icon">💵</span>
+                            <span class="step-text">Willingness to Pay</span>
+                            <span class="step-status spinning-hourglass">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-communication">
+                            <span class="step-icon">💬</span>
+                            <span class="step-text">Customer Communication</span>
+                            <span class="step-status spinning-hourglass">⏳</span>
+                        </div>
+                        <div class="progress-step" id="step-guidance">
+                            <span class="step-icon">🎯</span>
+                            <span class="step-text">Company Guidance</span>
+                            <span class="step-status spinning-hourglass">⏳</span>
+                        </div>
+                    </div>
+            </div>
+        `;
+        
+        // Insert progress indicator after the form
+        const form = document.getElementById('product-assessment-form');
+        console.log('🔍 Form element found:', !!form);
+        console.log('🔍 Form parent node:', !!form?.parentNode);
+        
+        if (form && form.parentNode) {
+            form.parentNode.insertBefore(progressContainer, form.nextSibling);
+            console.log('✅ Progress indicator inserted after form');
+        } else {
+            // Fallback: insert at the end of the container
+            const container = document.querySelector('.container');
+            console.log('🔍 Container found:', !!container);
+            
+            if (container) {
+                container.appendChild(progressContainer);
+                console.log('✅ Progress indicator inserted in container');
+            } else {
+                // Last resort: append to body
+                document.body.appendChild(progressContainer);
+                console.log('✅ Progress indicator inserted in body');
+            }
+        }
+        
+        // Start the progress simulation
+        simulateProgress();
+    }
+    
+    // Update progress step
+    function updateProgressStep(stepId, status) {
+        const stepElement = document.getElementById(stepId);
+        if (stepElement) {
+            const statusElement = stepElement.querySelector('.step-status');
+            if (statusElement) {
+                // Remove spinning animation
+                statusElement.classList.remove('spinning-hourglass');
+                
+                // Add completion styling and checkmark
+                statusElement.textContent = '✅';
+                statusElement.classList.add('completed-status');
+                stepElement.classList.add('completed');
+            }
+        }
+    }
+    
+    // Simulate progress with timed checkmarks
+    function simulateProgress() {
+        const steps = ['step-nba', 'step-value', 'step-willingness', 'step-communication', 'step-guidance'];
+        let currentStep = 0;
+        
+        const progressInterval = setInterval(() => {
+            if (currentStep < steps.length - 1) {
+                // Mark current step as completed
+                updateProgressStep(steps[currentStep], '✅');
+                currentStep++;
+            } else {
+                // Clear the interval - let the last step complete naturally
+                clearInterval(progressInterval);
+            }
+        }, 5000); // Every 5 seconds
+        
+        // Store interval ID so we can clear it when real completion happens
+        window.progressInterval = progressInterval;
+    }
+    
+    // Clean up progress indicator
+    function cleanupProgress() {
+        // Clear any running progress simulation
+        if (window.progressInterval) {
+            clearInterval(window.progressInterval);
+            window.progressInterval = null;
+        }
+        
+        const progressContainer = document.getElementById('progress-container');
+        if (progressContainer) {
+            progressContainer.remove();
+        }
     }
     
     // Show error message
@@ -105,10 +222,25 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Displaying results...');
         console.log('📊 Results Source:', results._source || 'unknown');
         console.log('⏰ Results Timestamp:', results._timestamp || 'unknown');
+        console.log('🔍 Company Guidance Structure:', results.step6_companyGuidance);
+        console.log('🔍 Value Differentiators Structure:', results.step2_valueDifferentiators);
+        
+        // Validate value differentiators math
+        if (results.step2_valueDifferentiators && results.step2_valueDifferentiators.differentiators) {
+            const individualSum = results.step2_valueDifferentiators.differentiators.reduce((sum, diff) => sum + (diff.value || 0), 0);
+            const displayedTotal = results.step2_valueDifferentiators.totalDifferentiatorValue || 0;
+            console.log('🧮 Math Check - Individual values sum:', individualSum, 'Displayed total:', displayedTotal);
+            if (Math.abs(individualSum - displayedTotal) > 1) {
+                console.warn('⚠️ Math inconsistency detected! Individual sum:', individualSum, 'vs Total:', displayedTotal);
+            }
+        }
         
         // Reset button
         submitBtn.innerHTML = 'Assess Product Value';
         submitBtn.disabled = false;
+        
+        // Clean up progress indicator
+        cleanupProgress();
         
         // Remove any error messages
         const existingError = document.querySelector('.error-message');
@@ -118,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create results HTML
         const dataSource = results._source || 'unknown';
-        const isAI = dataSource === 'openai';
+        const isAI = dataSource === 'openai' || dataSource === 'openai_multi_call';
         const sourceIndicator = isAI ? 
             '<div class="data-source-indicator ai-source">🤖 AI-Generated Assessment</div>' : 
             '<div class="data-source-indicator fallback-source">⚠️ Fallback Data (API Failed)</div>';
@@ -149,8 +281,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="key-findings">
                     <h4>🔑 Key Findings</h4>
                     <ul>
-                        ${results.executiveSummary.keyFindings.map(finding => `<li>${finding}</li>`).join('')}
+                        ${(results.executiveSummary.keyFindings || []).map(finding => `<li>${finding}</li>`).join('')}
                     </ul>
+                </div>
+                
+                <!-- Waterfall Chart -->
+                <div class="waterfall-chart-container">
+                    <h4>📊 Value Breakdown</h4>
+                    <div class="chart-wrapper">
+                        <div id="waterfall-chart"></div>
+                    </div>
                 </div>
             </div>
 
@@ -166,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>${results.step1_nbaAnalysis.searchMethodology}</p>
                     </div>
                     <div class="alternatives-grid">
-                        ${results.step1_nbaAnalysis.identifiedAlternatives.map(nba => `
+                        ${(results.step1_nbaAnalysis.identifiedAlternatives || []).map(nba => `
                             <div class="alternative-card">
                                 <div class="alternative-header">
                                     <h4>${nba.name}</h4>
@@ -196,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="step-content">
                     <div class="differentiators-grid">
-                        ${results.step2_valueDifferentiators.differentiators.map(diff => `
+                        ${(results.step2_valueDifferentiators.differentiators || []).map(diff => `
                             <div class="differentiator-card">
                                 <div class="differentiator-header">
                                     <h4>${diff.name}</h4>
@@ -205,7 +345,25 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="differentiator-details">
                                     <div class="calculation">
                                         <h5>🧮 Calculation</h5>
-                                        <p>${diff.calculation}</p>
+                                        ${typeof diff.calculation === 'object' ? `
+                                            <div class="calculation-methodology">
+                                                <strong>Methodology:</strong> ${diff.calculation.methodology || 'Not specified'}
+                                            </div>
+                                            <div class="calculation-substeps">
+                                                <strong>Calculation Steps:</strong>
+                                                <ul>
+                                                    ${(diff.calculation.substeps || []).map(step => `
+                                                        <li>
+                                                            <strong>${step.step}:</strong> ${step.calculation}
+                                                            ${step.assumptions ? `<br><em>Assumptions: ${step.assumptions}</em>` : ''}
+                                                        </li>
+                                                    `).join('')}
+                                                </ul>
+                                            </div>
+                                            <div class="calculation-total">
+                                                <strong>Total:</strong> ${diff.calculation.totalCalculation || 'Not calculated'}
+                                            </div>
+                                        ` : `<p>${diff.calculation}</p>`}
                                     </div>
                                     <div class="rationale">
                                         <h5>💡 Economic Rationale</h5>
@@ -256,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="customer-segments">
                         <h4>👥 Customer Segments</h4>
                         <div class="segments-grid">
-                            ${results.step3_willingnessToPay.customerSegments.map(segment => `
+                            ${(results.step3_willingnessToPay.customerSegments || []).map(segment => `
                                 <div class="segment-card">
                                     <h5>${segment.segment}</h5>
                                     <div class="segment-wtp">$${segment.willingnessToPay.toLocaleString()}</div>
@@ -328,24 +486,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="performance-gaps">
                         <h4>📉 Performance Gaps</h4>
                         <div class="gaps-grid">
-                            ${results.step6_companyGuidance.performanceGaps.map(gap => `
-                                <div class="gap-card">
-                                    <h5>${gap.area}</h5>
-                                    <p><strong>Current Performance:</strong> ${gap.currentPerformance}</p>
-                                    <p><strong>Recommendation:</strong> ${gap.recommendation}</p>
-                                    <p><strong>Expected Impact:</strong> ${gap.impact}</p>
-                                </div>
-                            `).join('')}
+                            ${results.step6_companyGuidance.performanceGaps ? 
+                                results.step6_companyGuidance.performanceGaps.map(gap => `
+                                    <div class="gap-card">
+                                        <h5>${gap.area}</h5>
+                                        <p><strong>Current Performance:</strong> ${gap.currentPerformance}</p>
+                                        <p><strong>Recommendation:</strong> ${gap.recommendation}</p>
+                                        <p><strong>Expected Impact:</strong> ${gap.impact}</p>
+                                    </div>
+                                `).join('') :
+                                // New structure with valueDriverStrengths and valueDriverWeaknesses
+                                (results.step6_companyGuidance.valueDriverStrengths || []).map(strength => `
+                                    <div class="gap-card">
+                                        <h5>✅ ${strength.driver}</h5>
+                                        <p><strong>Current Strength:</strong> ${strength.currentStrength}</p>
+                                        <p><strong>Level:</strong> ${strength.strengthLevel}</p>
+                                        <p><strong>Evidence:</strong> ${strength.evidence}</p>
+                                    </div>
+                                `).join('') +
+                                (results.step6_companyGuidance.valueDriverWeaknesses || []).map(weakness => `
+                                    <div class="gap-card">
+                                        <h5>⚠️ ${weakness.driver}</h5>
+                                        <p><strong>Current Weakness:</strong> ${weakness.currentWeakness}</p>
+                                        <p><strong>Level:</strong> ${weakness.weaknessLevel}</p>
+                                        <p><strong>Root Cause:</strong> ${weakness.rootCause}</p>
+                                    </div>
+                                `).join('')
+                            }
                         </div>
                     </div>
-                    <div class="underperformance-analysis">
-                        <h4>⚠️ Underperformance Areas</h4>
-                        <p>${results.step6_companyGuidance.underperformanceAreas}</p>
-                    </div>
-                    <div class="improvement-plan">
-                        <h4>📋 Improvement Plan</h4>
-                        <p>${results.step6_companyGuidance.improvementPlan}</p>
-                    </div>
+                    ${results.step6_companyGuidance.underperformanceAreas ? `
+                        <div class="underperformance-analysis">
+                            <h4>⚠️ Underperformance Areas</h4>
+                            <p>${results.step6_companyGuidance.underperformanceAreas}</p>
+                        </div>
+                    ` : ''}
+                    ${results.step6_companyGuidance.improvementPlan ? `
+                        <div class="improvement-plan">
+                            <h4>📋 Improvement Plan</h4>
+                            <p>${results.step6_companyGuidance.improvementPlan}</p>
+                        </div>
+                    ` : ''}
+                    ${results.step6_companyGuidance.competitivePositioning ? `
+                        <div class="competitive-positioning">
+                            <h4>🎯 Competitive Positioning</h4>
+                            <p><strong>Current Position:</strong> ${results.step6_companyGuidance.competitivePositioning.currentPosition}</p>
+                            <p><strong>Positioning Gaps:</strong> ${results.step6_companyGuidance.competitivePositioning.positioningGaps}</p>
+                        </div>
+                    ` : ''}
                 </div>
             </div>
 
@@ -353,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="next-steps">
                 <h2>🚀 Next Steps</h2>
                 <div class="steps-list">
-                    ${results.executiveSummary.nextSteps.map((step, index) => `
+                    ${(results.executiveSummary.nextSteps || []).map((step, index) => `
                         <div class="next-step-item">
                             <div class="step-number">${index + 1}</div>
                             <div class="step-content">${step}</div>
@@ -375,6 +563,8 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsSection.classList.add('show-results');
             // Initialize tooltips after results are displayed
             initializeTooltips();
+            // Initialize waterfall chart animation
+            initializeWaterfallChart();
         }, 100);
     }
     
@@ -421,6 +611,145 @@ document.addEventListener('DOMContentLoaded', function() {
         if (existingTooltip) {
             existingTooltip.remove();
         }
+    }
+    
+    // Initialize waterfall chart with Plotly.js
+    function initializeWaterfallChart() {
+        const chartDiv = document.getElementById('waterfall-chart');
+        if (!chartDiv) return;
+        
+        // Get the results data from the current assessment
+        const results = window.currentAssessmentResults;
+        if (!results) return;
+        
+        // Prepare waterfall data structure
+        const nbaValue = results.step1_nbaAnalysis.nbaValue;
+        const differentiators = results.step2_valueDifferentiators.differentiators;
+        
+        // Calculate the correct total: NBA value + sum of all differentiators
+        const differentiatorSum = differentiators.reduce((sum, diff) => sum + (diff.value || 0), 0);
+        const calculatedTotal = nbaValue + differentiatorSum;
+        
+        // Create waterfall data
+        const x = ['NBA Value'];
+        const y = [nbaValue];
+        const measure = ['absolute'];
+        const text = [`$${nbaValue.toLocaleString()}`];
+        const colors = ['#2563eb'];
+        
+        // Add each differentiator
+        differentiators.forEach(diff => {
+            x.push(diff.name);
+            y.push(diff.value);
+            measure.push('relative');
+            text.push(`+$${diff.value.toLocaleString()}`);
+            colors.push('#22c55e');
+        });
+        
+        // Add final total - use calculated total to ensure accuracy
+        x.push('Willingness to Pay');
+        y.push(calculatedTotal);
+        measure.push('total');
+        text.push(`$${calculatedTotal.toLocaleString()}`);
+        colors.push('#16a34a');
+        
+        // Create the waterfall chart
+        const data = [{
+            type: 'waterfall',
+            x: x,
+            y: y,
+            measure: measure,
+            text: text,
+            textposition: 'outside',
+            texttemplate: '<b>%{text}</b>',
+            connector: {
+                line: {
+                    color: 'rgba(148, 163, 184, 0.5)',
+                    width: 2
+                }
+            },
+            marker: {
+                color: colors,
+                line: {
+                    color: colors,
+                    width: 2
+                }
+            },
+            textfont: {
+                size: 13,
+                color: '#1e293b',
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+            }
+        }];
+        
+        const layout = {
+            title: {
+                text: '',
+                font: {
+                    size: 18,
+                    color: '#1e293b',
+                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                }
+            },
+            xaxis: {
+                title: '',
+                showgrid: false,
+                tickangle: -45,
+                tickfont: {
+                    size: 11,
+                    color: '#374151',
+                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                },
+                titlefont: {
+                    size: 14,
+                    color: '#1e293b',
+                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                },
+                automargin: true
+            },
+            yaxis: {
+                title: {
+                    text: 'Value ($)',
+                    font: {
+                        size: 14,
+                        color: '#1e293b',
+                        family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                    }
+                },
+                showgrid: true,
+                gridcolor: 'rgba(148, 163, 184, 0.2)',
+                tickformat: '$,.0f',
+                tickfont: {
+                    size: 12,
+                    color: '#374151',
+                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif'
+                }
+            },
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            margin: {
+                l: 120,
+                r: 80,
+                t: 120,
+                b: 200
+            },
+            showlegend: false,
+            hovermode: 'closest',
+            font: {
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+                size: 12,
+                color: '#1e293b'
+            }
+        };
+        
+        const config = {
+            responsive: true,
+            displayModeBar: false,
+            staticPlot: false
+        };
+        
+        // Create the plot
+        Plotly.newPlot('waterfall-chart', data, layout, config);
     }
     
     // File upload handling
@@ -614,9 +943,85 @@ window.testAPIKey = function() {
     });
 };
 
+window.testSimpleAPI = async function() {
+    console.log('🧪 Testing simple API call...');
+    
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CONFIG.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    {
+                        role: 'user',
+                        content: 'Say "API test successful" and nothing else.'
+                    }
+                ],
+                max_tokens: 10,
+                temperature: 0
+            })
+        });
+        
+        console.log('📡 Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ API Error:', errorText);
+            return false;
+        }
+        
+        const data = await response.json();
+        console.log('✅ API Response:', data);
+        return true;
+        
+    } catch (error) {
+        console.error('❌ API Test Failed:', error);
+        return false;
+    }
+};
+
 window.forceFallback = function() {
     console.log('🔄 Forcing fallback mode...');
     CONFIG.USE_FALLBACK = true;
     CONFIG.OPENAI_API_KEY = 'invalid-key-for-testing';
     console.log('✅ Fallback mode enabled. Next assessment will use mock data.');
+};
+
+window.diagnoseAPI = async function() {
+    console.log('🔍 Running API diagnostics...');
+    
+    // Check config
+    console.log('1. Config check:', {
+        hasKey: !!CONFIG.OPENAI_API_KEY,
+        keyLength: CONFIG.OPENAI_API_KEY?.length,
+        model: CONFIG.MODEL,
+        maxTokens: CONFIG.MAX_TOKENS,
+        useFallback: CONFIG.USE_FALLBACK
+    });
+    
+    // Test simple API call
+    console.log('2. Testing simple API call...');
+    const simpleTest = await window.testSimpleAPI();
+    
+    // Test with current service
+    console.log('3. Testing with current service...');
+    try {
+        const testData = {
+            name: "Test Product",
+            description: "A simple test product",
+            nbaProducts: "Test alternative",
+            additionalInfo: "Test info"
+        };
+        
+        const result = await openAIService.assessProduct(testData);
+        console.log('✅ Service test successful:', result);
+    } catch (error) {
+        console.error('❌ Service test failed:', error);
+    }
+    
+    return { simpleTest, config: CONFIG };
 };
