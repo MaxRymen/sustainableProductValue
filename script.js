@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Clear the interval - let the last step complete naturally
                 clearInterval(progressInterval);
             }
-        }, 5000); // Every 5 seconds
+        }, 2000); // Every 2 seconds
         
         // Store interval ID so we can clear it when real completion happens
         window.progressInterval = progressInterval;
