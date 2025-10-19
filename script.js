@@ -1,4 +1,6 @@
+// Note: start with customer segments & then run through the steps
 // Sustainable Product Value Assessment - JavaScript
+// modules -- segmentation -- NBA -- Value calculator -- ...
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing form...');
