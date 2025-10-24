@@ -31,8 +31,7 @@ A web application that helps companies assess the value of their sustainable pro
    - Add your OpenAI API key to `config.js`
 
 3. **Open in browser**
-   - Simply open `index.html` in your web browser
-   - Or use a local server for better performance
+   - Use a local server (using a cache of -1 seconds to make sure you see your code changes) `npx http-server . -c-1`
 
 ## 📖 How to Use
 
@@ -85,9 +84,7 @@ Create a `config.js` file with your API settings:
 const CONFIG = {
     OPENAI_API_KEY: 'your-api-key-here',
     OPENAI_API_URL: 'https://api.openai.com/v1/chat/completions',
-    MODEL: 'gpt-3.5-turbo',
-    MAX_TOKENS: 3000,
-    TEMPERATURE: 0.8,
+    MODEL: 'gpt-5-nano',
     USE_FALLBACK: true,
     API_TIMEOUT: 30000
 };
