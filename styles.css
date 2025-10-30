@@ -1217,6 +1217,243 @@ body::before {
     margin: 0;
 }
 
+/* Segmentation Overview */
+.segmentation-approach {
+    font-size: 1rem;
+    color: rgba(30, 41, 59, 0.85);
+    margin-bottom: 1.5rem;
+}
+
+.segmentation-insights {
+    list-style: none;
+    margin-bottom: 1.5rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.segmentation-insights li {
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    color: rgba(30, 41, 59, 0.85);
+}
+
+.segment-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.segment-summary-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transition: transform 0.3s ease;
+}
+
+.segment-summary-card:hover {
+    transform: translateY(-4px);
+}
+
+.segment-summary-card h3 {
+    color: #1e293b;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.segment-description {
+    color: rgba(30, 41, 59, 0.75);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.segment-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: rgba(30, 41, 59, 0.7);
+}
+
+.segment-list {
+    margin-bottom: 1rem;
+}
+
+.segment-list ul {
+    margin-top: 0.5rem;
+    margin-left: 1.2rem;
+    color: rgba(30, 41, 59, 0.75);
+}
+
+.product-overview {
+    background: rgba(236, 253, 245, 0.7);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.product-overview h3 {
+    margin-bottom: 0.5rem;
+    color: #047857;
+    font-weight: 600;
+}
+
+.product-overview p {
+    color: rgba(4, 120, 87, 0.85);
+    line-height: 1.5;
+}
+
+/* Cross Segment Summary */
+.cross-segment-step .chart-wrapper {
+    min-height: 280px;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.stats-item {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    padding: 1rem;
+    color: rgba(30, 41, 59, 0.85);
+    font-weight: 500;
+}
+
+/* Segment Tabs */
+.segment-tabs {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.tab-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.segment-tab {
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(255, 255, 255, 0.85);
+    color: #1e293b;
+    padding: 0.65rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.segment-tab:hover {
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #16a34a;
+}
+
+.segment-tab.active {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-color: rgba(22, 163, 74, 0.6);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(22, 163, 74, 0.25);
+}
+
+.segment-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.segment-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.storytelling-themes {
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    padding: 1.2rem;
+}
+
+.storytelling-themes ul {
+    margin-top: 0.75rem;
+    margin-left: 1.2rem;
+    color: rgba(30, 41, 59, 0.8);
+}
+
+.guidance-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.guidance-column h4 {
+    margin-bottom: 1rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.capability-block {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    padding: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.capability-block h5 {
+    color: #1e293b;
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.capability-block p {
+    color: rgba(30, 41, 59, 0.75);
+    margin-bottom: 0.5rem;
+}
+
+.capability-warning {
+    border-color: rgba(248, 113, 113, 0.4);
+    background: rgba(248, 113, 113, 0.12);
+}
+
+.opportunity-list ul {
+    margin-top: 0.5rem;
+    margin-left: 1.2rem;
+    color: rgba(30, 41, 59, 0.75);
+}
+
+.empty-state {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px dashed rgba(148, 163, 184, 0.5);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    color: rgba(30, 41, 59, 0.65);
+    font-size: 1.05rem;
+}
+
+.waterfall-chart {
+    min-height: 280px;
+}
+
 /* Step 4: Total Value */
 .total-value-card {
     background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05));
@@ -1376,7 +1613,7 @@ body::before {
     padding: 1.5rem;
 }
 
-#waterfall-chart {
+.waterfall-chart {
     width: 100% !important;
     height: 100% !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;

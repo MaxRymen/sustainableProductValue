@@ -1,4 +1,5 @@
 const DEFAULT_STEPS = [
+  { id: 'step-segmentation', icon: '👥', label: 'Customer Segmentation' },
   { id: 'step-nba', icon: '🔍', label: 'NBA Analysis' },
   { id: 'step-nba-value', icon: '💲', label: 'NBA Value Estimation' },
   { id: 'step-value', icon: '💎', label: 'Value Differentiators' },

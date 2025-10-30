@@ -58,6 +58,7 @@ export class AssessmentApp {
     this.errorBanner.clear();
     this.progressIndicator.show();
     this.setLoadingState(true);
+    this.resultsRenderer.reset();
 
     try {
       productData.extractedTexts = await this.fileExtractor.extract(productData.files);
@@ -66,9 +67,12 @@ export class AssessmentApp {
         onStepCompleted: (stepId, success) => {
           this.progressIndicator.completeStep(stepId, success);
         },
+        onPartialResult: partialResults => {
+          this.resultsRenderer.render(partialResults);
+        },
       });
 
-      this.resultsRenderer.render(results);
+      this.resultsRenderer.render(results, { isFinal: true });
     } catch (error) {
       console.error('Product assessment failed:', error);
       const message =

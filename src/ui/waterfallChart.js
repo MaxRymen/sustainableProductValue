@@ -1,13 +1,13 @@
-export function renderWaterfallChart(results) {
-  const chartDiv = document.getElementById('waterfall-chart');
+export function renderWaterfallChart({ segment, containerId = 'waterfall-chart' }) {
+  const chartDiv = document.getElementById(containerId);
   const Plotly = window.Plotly;
 
   if (!chartDiv || !Plotly) {
     return;
   }
 
-  const nbaValue = results?.step1_nbaValue?.nbaValue ?? 0;
-  const differentiators = results?.step2_valueDifferentiators?.differentiators ?? [];
+  const nbaValue = segment?.step1_nbaValue?.nbaValue ?? 0;
+  const differentiators = segment?.step2_valueDifferentiators?.differentiators ?? [];
 
   const x = ['NBA Value'];
   const y = [nbaValue];
@@ -32,6 +32,10 @@ export function renderWaterfallChart(results) {
   measure.push('total');
   text.push(`${formatCurrency(total)}`);
   colors.push('#16a34a');
+
+  const parent = chartDiv.parentElement;
+  const width = chartDiv.clientWidth || parent?.clientWidth || 900;
+  const height = chartDiv.clientHeight || parent?.clientHeight || 520;
 
   Plotly.newPlot(
     chartDiv,
@@ -66,6 +70,9 @@ export function renderWaterfallChart(results) {
       },
     ],
     {
+      autosize: true,
+      width,
+      height,
       xaxis: {
         showgrid: false,
         tickangle: -45,
@@ -92,6 +99,12 @@ export function renderWaterfallChart(results) {
       staticPlot: false,
     },
   );
+
+  if (typeof Plotly.Plots?.resize === 'function') {
+    requestAnimationFrame(() => {
+      Plotly.Plots.resize(chartDiv);
+    });
+  }
 }
 
 function formatCurrency(amount) {
