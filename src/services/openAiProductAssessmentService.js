@@ -607,7 +607,40 @@ export class OpenAiProductAssessmentService {
     }
 
     const jsonText = cleaned.substring(jsonStart, jsonEnd + 1);
-    return JSON.parse(jsonText);
+
+    try {
+      return JSON.parse(jsonText);
+    } catch (error) {
+      try {
+        const repaired = this.repairJsonStructure(jsonText);
+        return JSON.parse(repaired);
+      } catch (repairError) {
+        repairError.cause = error;
+        throw repairError;
+      }
+    }
+  }
+
+  repairJsonStructure(rawText = '') {
+    if (typeof rawText !== 'string') {
+      return rawText;
+    }
+
+    let fixed = rawText
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"');
+
+    const propertyNamePattern = /([,{]\s*)([A-Za-z0-9_\-]+)\s*:/g;
+    fixed = fixed.replace(propertyNamePattern, '$1"$2":');
+
+    fixed = fixed.replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, (_, value) => {
+      const escaped = value.replace(/"/g, '\\"');
+      return `"${escaped}"`;
+    });
+
+    fixed = fixed.replace(/,\s*([}\]])/g, '$1');
+
+    return fixed;
   }
 
   formatContextForPrompt(label, data, maxLength = 2000) {
